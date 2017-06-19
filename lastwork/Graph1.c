@@ -26,7 +26,7 @@ void CreateGraph(MGraph *G,Datatype a[],int n,int e){
 	printf("输入边关系:\n");
 	for (k = 0; k < G -> edgeNum; k++)			//依次输入每一条边
 	{	
-		scanf("%d%d",&i,&j);				//输入边依附的顶点编号
+		scanf("%d %d",&i,&j);				//输入边依附的顶点编号
 		G -> edge[i][j] = 1;				//置有边标志
 		G -> edge[j][i] = 1;
 	}
@@ -55,7 +55,7 @@ void BFSTraverse(MGraph *G,int v){				//全局数组变量visited[n]已初始化
 	while(front != rear)					//当队列非空的时候
 	{
 		i = Q[++front];					//当队头元素出队列送到v中
-		for (int i = 0; i < G -> vertexNum; i++)
+		for (j = 0; j < G -> vertexNum; j++)
 		{
 			if (G -> edge[i][j] == 1 && visited[j] == 0)
 			{
@@ -70,20 +70,20 @@ void BFSTraverse(MGraph *G,int v){				//全局数组变量visited[n]已初始化
 int main(int argc, char const *argv[])
 {
 	int i;
-	char ch[] = {'A','B','C','D'};
+	char ch[] = {'A','B','C','D','E','F','G'};
 	MGraph MG;
-	CreateGraph(&MG,ch,4,5);				//建立具有5个节点,6条边的无向图
+	CreateGraph(&MG,ch,6,6);				//建立具有6个节点,6条边的无向图
 	for (int i = 0; i < Maxsize; i++)
 	{
 		visited[i] = 0;
 	}
 	printf("shen:\n");
-	DFSTraverse(&MG,0);					//从顶点0出发进行深度优先遍历
+	DFSTraverse(&MG,0);					//从顶点A出发进行深度优先遍历
 	for (int i = 0; i < Maxsize; i++)	
 	{
 		visited[i] = 0;
 	}
 	printf("guang:\n");
-	BFSTraverse(&MG,0);					//从顶点0出发进行广度优先遍历
+	BFSTraverse(&MG,0);					//从顶点A出发进行广度优先遍历
 	return 0;
 }
