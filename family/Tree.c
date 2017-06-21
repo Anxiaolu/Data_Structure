@@ -9,7 +9,7 @@ int MATEFLAG = 0;
 typedef  struct TreeNode 
 {  
     int  Num;                     // 孩子数目
-    char Name[20];           // 名字
+    char Name[20];					// 名字
     char Sex;                      // 性别 男M女F
     struct TreeNode * NextNode[20];   //（孩子节点） 
     struct TreeNode * Parent;         // 祖先节点
@@ -22,8 +22,10 @@ void progress();										//进程百分比显示
 void MainMenu(TreeNode *Tree);							//开始界面加载
 void showOperation();									//操作界面的输出
 
-void CreateTreeNode();									//节点创建方法
-void CreateTree();										//递归创建子树
+void CreateTreeNode();							//节点创建方法
+void CreateTree();								//递归创建子树
+	
+void OutPutAll();										//递归遍历整个家谱树
 
 TreeNode * FindNode(TreeNode *Tree,char name[],int length);	//在树中遍历查找
 void ShowNodeMessage(TreeNode *Tree);					//输出该节点对应的信息
@@ -34,14 +36,12 @@ int main(){
 	welcome();
 	Tree=(TreeNode *)malloc(sizeof(TreeNode));
 	Tree->Parent =NULL;
-	strcpy(Tree->Name,"0");
-	MainMenu(Tree);
 	
 	Sleep(1000);				//加载之后设置短暂的延时
 	printf("\t请按任意键进入！");
 	while(getchar() == 0);
 	system("cls");
-	printf("\t欢迎进入家谱系统！请选择您的操作\n");
+	MainMenu(Tree);
 	printf("已退出当前系统");
 	return 0;
 
@@ -66,7 +66,6 @@ void progress(){
 	Sleep(30);
 	curPos++;
 	//system("cls");	// 清除上次输出结果
-	fflush(stdout);
 	printf("\t##\t\t\t当前进度:%d%%\t\t\t##\t\b\b\b\b\b\b\b\b\b\b\b", curPos);
 	}
 }
@@ -82,38 +81,42 @@ void showOperation(){
 	printf("\t------------F:退出整个程序----------------------------------\t\n");
 }
 
-
+//主菜单
 void MainMenu(TreeNode *Tree){
-	char c;								//用于储存操作的临时变量
+	char c;	int flag = 1;							//用于储存操作的临时变量
 	char name[20];
-	TreeNode *NewTree;
+	TreeNode *NewNode;
+	if(flag){
+		printf("\t\t\t欢迎进入家谱系统！请选择您的操作\t\t\t\n");
+		flag = 0;
+	}
 	while(1)
 	{
 		system("cls");
 		showOperation();
-
 		c = getchar();
 		switch(c)
 		{
-			case 'A': CreateTreeNode();	break;
+			case 'A': 
+				isEmptyTree(Tree);
+				CreateTreeNode(Tree);
+				break;
 			case 'B': 
-				if(strcmp(Tree ->Name, "0") == 0)
-				{
-					printf("\n\t家谱图的多叉树尚未建立请先建立树\n");
-					getchar();
-					break;
-				}
 				printf("\n\t请输入你要查找的人的姓名:\n\t");
 				scanf("%s",name);
-				ShowNodeMessage(FindNode(Tree,name,20)); break;
-			case 'C': printf("添加新的成员"); break;
-			case 'D': printf("输出整个家谱信息"); break;
+				ShowNodeMessage(FindNode(Tree,name,20));
+				getchar();
+				break;
+			case 'C': SubMenu2(); break;
+			case 'D': OutPutAll(Tree);getchar(); break;
 			case 'E': printf("修改某个人的信息"); break;
 			case 'F': printf("\n\n\t----------------本项服务到此结束-----------------");break;
+			case '\n': break;
 			default:
 			    printf("\n\n\t--------对不起!你的选择不在服务范围之内!---------");
 				printf("\n\t-----------请您再次选择所需的服务项!-------------");
 				printf("\n\t------------------谢谢合作!----------------------\n\t");
+				Sleep(500);
 				break;
 		}
 	}
@@ -128,7 +131,6 @@ void CreateTreeNode(TreeNode *Tree){
 	printf("\n\t请输入性别女G男B:\n\t");
 	getchar();
 	scanf("%c",&(Tree->Sex));
-	Tree->Parent=NewNode;
 	Tree->Parent=NULL;
 	CreateTree(Tree);
 	printf("\n\t--------------家谱图已经建立成功---------------\n\n");
@@ -152,7 +154,7 @@ void CreateTree(TreeNode *Node)
 	printf("\n\t请输入%s的配偶的姓名:\n\t",Node->Name);
 	scanf("%s",NewNode->Name);
 	if((Node->Num)==0&&strcmp(NewNode->Name,"0")==0)		//当祖先节点没有配偶时，退出
-		return ;
+		return 0;
 
 	if (Node->Sex=='G'||Node->Sex=='g')						//根据原结点设置新建节点的配偶属性
 		NewNode->Sex='B';
@@ -179,7 +181,59 @@ void CreateTree(TreeNode *Node)
 	}
 }
 
+int isEmptyTree(TreeNode *Tree){
+	if(strcmp(Tree->Name,"0")==0)
+		{
+			printf("\n\t家谱图的多叉树尚未建立请先建立树\n");
+			return 1;
+		}
+}
 
+//遍历并输出树中的内容
+void OutPutAll(TreeNode *Tree)
+{
+	int i, flag=0;
+	printf("\n\t---****---***---***---***---***---***---***---***---***---");
+	printf("\n\t姓名:%s 性别:",Tree->Name);
+	if (Tree->Sex=='G')
+	{
+		flag=1;
+		printf("女");
+	}
+	else 
+		printf("男");
+
+	if (!(Tree->NextNode[0]))
+	{ 
+		printf("\n\t至今没有配偶和子女\n");
+		return;
+	}
+
+    if(flag==1)
+		printf("\n\t丈夫 姓名:%s",Tree->NextNode[0]->Name);
+	else
+		printf("\n\t妻子 姓名:%s",Tree->NextNode[0]->Name);
+
+	for(i=1;i<=Tree->Num;i++)
+	{
+		printf("\n\t第%d个子女的姓名:%s 性别:",i,Tree->NextNode[i]->Name,Tree->NextNode[i]->Sex);
+		if (Tree->NextNode[i]->Sex=='G')
+			printf("女");
+		else 
+			printf("男");
+	}
+
+	printf("\n\t");
+
+	for(i=1;i<=Tree->Num;i++)
+	{
+		OutPutAll(Tree->NextNode[i]);
+	}
+	printf("\n\t--------------家谱图输出完毕！---------------\n\n");
+
+	printf("\n\n\t--------------请按Enter键继续操作--------------");
+	getchar();
+}
 
 //从树中找出对应节点
 TreeNode * FindNode(TreeNode *Tree,char name[],int length)
@@ -209,37 +263,125 @@ TreeNode * FindNode(TreeNode *Tree,char name[],int length)
 	
 }
 
+//输出要查询节点对应的信息
 void ShowNodeMessage(TreeNode *Tree){
-	int i;
-	TreeNode *NewNode;
-	printf("您要找的人信息如下：\n");
-	printf("姓名：%s",Tree->Name);
+	int i,flag;				//将flag作为判断男女的标志
+	TreeNode *NewNode = Tree -> Parent;			//定义为父节点用于判断是否为根节点
+	printf("\t您要找的人信息如下：\n");
+	printf("\t姓名：%s", Tree -> Name);
 
-	if(strcmp(Tree->Sex,'G')==0 || strcmp(Tree ->Sex,'g') == 0)
-	{
-		printf("性别：女。\n");
-	}
-	else(strcmp(Tree->Sex , 'B') == 0 || srcmp(Tree ->Sex, 'b')==0)
-	{
-		printf("性别：男。\n");
-	}
+	if(Tree->Sex == 'G')
+		printf("\t性别：女。\n");
+	else
+		printf("\t性别：男。\n");
 
 	if(Tree->NextNode[0] != 0)
 	{
-		printf("%s的配偶为%s",Tree->Name,Tree->NextNode[0]);
+		//printf("\t%s的配偶为%s",Tree->Name,Tree->NextNode[0]);
 		for(i = 0;i < Tree->Num;i++)
 		{
-			printf("%s的孩子%d为%s.",Tree->Name,i,Tree->NextNode[i]->Name);
+			printf("\t%s的孩子%d为%s.",Tree->Name,i,Tree->NextNode[i]->Name);
 		}
 	}
 	else{
-		printf("%s无配偶,并且无孩子！");
+		printf("\t%s无配偶,并且无孩子！");
 		return ;
+	}
+
+	//判断它是不是根节点如果是的话就没有父母兄弟信息
+	if(NewNode==NULL)									
+		printf("\n\t是这个家谱图里最顶端的人没有父母和兄弟姐妹信息!",Tree->Name);
+	else
+	{
+		if (NewNode->Sex=='G')      //判断父亲节点是父亲还是母亲
+		{												 //输出他（她）的父母亲的信息
+			printf("\n\t母亲 姓名:%s",NewNode->Name);
+			printf("\n\t父亲 姓名:%s",NewNode->NextNode[0]->Name);
+		}
+		else 
+		{
+			printf("\n\t母亲 姓名:%s",NewNode->NextNode[0]->Name);
+			printf("\n\t父亲 姓名:%s",NewNode->Name);
+		}
+		if (NewNode->Num>1)                             //判断他(她)是否有兄弟姐妹
+		{												//输出他(她)的兄弟姐妹的信息
+			printf("\n\t%s的兄弟姐妹信息如下:",Tree->Name);											
+			for(i=1;i<=NewNode->Num;i++)
+				{
+				if(NewNode->NextNode[i])
+					printf("\n\t%s姓名:%s  性别:",NewNode->NextNode[i]->Name,NewNode->NextNode[i]->Name);
+				
+				if (NewNode->NextNode[i]->Sex=='G')
+					printf("女");
+				else 
+					printf("男");
+			}
+		}
+		else
+			printf("\n\t%s没有兄弟姐妹!",Tree->Name);
+	}
+	
+	//如果要查询的有配偶
+	if (Tree->NextNode[0] != NULL)
+	{
+		if(flag==1)
+			printf("\n\t丈夫 姓名:%s",Tree->NextNode[0]->Name);
+		else
+			printf("\n\t妻子 姓名:%s",Tree->NextNode[0]->Name);
+
+		if (Tree->Num>0)                             //判断他(她)是否有孩子
+		{		
+			printf("\n\t的孩子的信息如下:");       //输出他(她)的孩子的信息
+			for(i=1;i<=Tree->Num;i++)
+			{
+				printf("\n\t姓名:%s  性别:",Tree->NextNode[i]->Name);
+				
+				if (Tree->NextNode[i]->Sex=='G'||Tree->Sex=='g') 
+					printf("女");
+				else 
+					printf("男");
+			}
+		}
+		else
+			printf("\n\t%s至今还没有孩子",Tree->Name);
+	}
+	else
+		printf("\t%s很悲惨啊，到现在还没有对象！", Tree->Name);
+
+	printf("\n\n\t--------------%s的信息输出完毕！----------------",Tree->Name);
+	printf("\n\n\t--------------请按Enter键继续操作--------------");
+	getchar();
+}
+
+void SubMenu2(){
+	char c;
+	int flag = 0;
+	char name[];
+	TreeNode *NewNode;
+	while(1)
+	{
+		system("cls");
+		printf("\t\t----------请选择你的操作-----------\t\t");
+		printf("\t---*---*---*---A:添加某个人的子女信息---*---*---*---*---");
+		printf("\t---*---*---*---B:添加某个人的配偶信息---*---*---*---*---");
+		printf("\t---*---*---*---C:退出---*---*---*---*---*---*---*---*---");
+		c = getchar();
+		switch(c)
+		{
+		case 'A':
+		}
 	}
 }
 
+//添加节点，operation作为操作方式
+void addNode(TreeNode *Node,char operation){
+	TreeNode *NewTree;
+	printf("请输入要做人的姓名。");
+	getchar();
+	scanf("%s",Node->Name);
+	
 
-
+}
 
 
 
