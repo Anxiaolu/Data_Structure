@@ -46,7 +46,7 @@ int main(){
 	Tree->Parent =NULL;
 	
 	Sleep(1000);				//加载之后设置短暂的延时
-	printf("\t请按任意键进入！");
+	printf("\t请按Enter键进入！");
 	while(getchar() == 0);
 	system("cls");
 	MainMenu(Tree);
@@ -80,7 +80,7 @@ void progress(){
 
 //向前台显示对应的操作
 void showOperation(){
-	printf("\t\t\t---***---请选择你的操作---***---\t\t\t\n");
+	printf("\t\t\t---------请选择你的操作---------\t\t\t\n");
 	printf("\t------------A:输入家谱信息建立多叉树------------------------\t\n");
 	printf("\t------------B:在家族中查找某人并输出他或（她）的相应信息----\t\n");
 	printf("\t------------C:添加新的成员----------------------------------\t\n");
@@ -134,13 +134,11 @@ void MainMenu(TreeNode *Tree){
 				getchar();
 				break;
 			case 'F': 
-				printf("\n\n\t----------------本项服务到此结束-----------------");
+				printf("\n\n\t----------------本次服务到此结束-----------------");
 				break;
 			case '\n': break;
 			default:
 			    printf("\n\n\t--------对不起!你的选择不在服务范围之内!---------");
-				printf("\n\t-----------请您再次选择所需的服务项!-------------");
-				printf("\n\t------------------谢谢合作!----------------------\n\t");
 				Sleep(500);
 				break;
 		}
@@ -189,7 +187,7 @@ void CreateTree(TreeNode *Node)
 	NewNode->Num=0;											//对配偶节点进行属性设置
 	NewNode->NextNode[0]=NULL;								//定义配偶节点的孩子节点为空
 	Node->NextNode[0]=NewNode;								//将配偶节点与原节点属性绑定
-	Node->NextNode[0]->Parent=Node;							//将配偶的父节点定义为另一个配偶
+	Node->NextNode[0]->Parent=Node;		 					//将配偶的父节点定义为另一个配偶
 
 	for(i=1;i<=Node->Num;i++)
 	{
@@ -298,14 +296,13 @@ TreeNode * FindNode(TreeNode *Tree,char name[],int mark)
 
 //输出要查询节点对应的信息
 void ShowNodeMessage(TreeNode *Tree){
-	int i,flag=0;				//将flag作为判断男女的标志
+	int i;
 	TreeNode *NewNode;			//定义为父节点用于判断是否为根节点
 	printf("\t您要找的人信息如下：\n");
 	printf("\t姓名：%s", Tree -> Name);
 
 	if(Tree->Sex == 'G')
 	{
-		flag = 1;
 		printf("\t性别：女。\n");
 	}
 	else
@@ -392,7 +389,7 @@ void ShowNodeMessage(TreeNode *Tree){
 	//如果要查询的有配偶
 	if (Tree->NextNode[0] != NULL)
 	{
-		if(flag==1)
+		if(Tree -> NextNode[0] -> Sex == 'G')
 			printf("\n\t丈夫 姓名:%s",Tree->NextNode[0]->Name);
 		else
 			printf("\n\t妻子 姓名:%s",Tree->NextNode[0]->Name);
